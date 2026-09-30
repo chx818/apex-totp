@@ -87,8 +87,11 @@ public class YkneoOath extends Applet {
 		rng = RandomData.getInstance(RandomData.ALG_PSEUDO_RANDOM);
 		
 		sha224 = MessageDigest.getInstance(MessageDigest.ALG_SHA_224, false);
-		tar1 = JCSystem.makeTransientByteArray((short) 28, JCSystem.CLEAR_ON_RESET);
-		tar2 = JCSystem.makeTransientByteArray((short)28, JCSystem.CLEAR_ON_RESET);
+		/* Optimize JCOP 4/5 RAM: allocate tar1/tar2 in CLEAR_ON_DESELECT instead of CLEAR_ON_RESET
+		 * to save 56 bytes of scarce COR RAM. tar1/tar2 are only ephemeral scratch buffers for
+		 * burning CPU cycles on failed password authentication. */
+		tar1 = JCSystem.makeTransientByteArray((short) 28, JCSystem.CLEAR_ON_DESELECT);
+		tar2 = JCSystem.makeTransientByteArray((short) 28, JCSystem.CLEAR_ON_DESELECT);
 
 		identity = new byte[CHALLENGE_LENGTH];
 		rng.generateData(identity, _0, CHALLENGE_LENGTH);
